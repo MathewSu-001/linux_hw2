@@ -3,17 +3,14 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "list.h"
 
-typedef struct __node {
-    struct __node *left, *right;
+typedef struct __node 
+{
+    struct list_head *head;
     struct __node *next;
     long value;
 } node_t;
-
-void list_add(node_t **list, node_t *node_t) {
-    node_t->next = *list;
-    *list = node_t;
-}
 
 node_t *list_tail(node_t **left) {
     while ((*left) && (*left)->next)
@@ -21,13 +18,17 @@ node_t *list_tail(node_t **left) {
     return *left;
 }
 
-int list_length(node_t **left) {
-    int n = 0;
-    while (*left) {
-        ++n;
-        left = &((*left)->next);
-    }
-    return n;
+int list_length(struct list_head *head) {
+    
+    if (!head || list_empty(head))
+        return 0;
+
+    int len = 0;
+    struct list_head *li;
+
+    list_for_each (li, head)
+        len++;
+    return len;
 }
 
 node_t *list_construct(node_t *list, int n) {
@@ -85,7 +86,7 @@ void quick_sort(node_t **list) {
     // int max_level = 2 * n;
     // node_t *begin[max_level], *end[max_level];
     node_t *begin[n], *end[n];
-    node_t *result = NULL, *left = NULL, *right = NULL;
+    struct list_head *result = NULL, *left = NULL, *right = NULL;
 
     begin[0] = *list;
     end[0] = list_tail(list);
@@ -101,7 +102,7 @@ void quick_sort(node_t **list) {
         while (p) {
             node_t *n = p;
             p = p->next;
-            list_add(n->value > value ? &right : &left, n);
+            list_add(n->head , n->value > value ? right : left);
         }
 
         begin[i] = left;
@@ -116,7 +117,7 @@ void quick_sort(node_t **list) {
 
         } else {
         if (L)
-            list_add(&result, L);
+            list_add(L, result);
         i--;
         }
     }
