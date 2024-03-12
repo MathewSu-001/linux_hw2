@@ -18,7 +18,8 @@ node_t *list_tail(node_t **left) {
     return *left;
 }
 
-int list_length(struct list_head *head) {
+int list_length(struct list_head *head) 
+{
     
     if (!head || list_empty(head))
         return 0;
@@ -31,14 +32,16 @@ int list_length(struct list_head *head) {
     return len;
 }
 
-node_t *list_construct(node_t *list, int n) {
+node_t *list_construct(node_t *list, int n)
+{
     node_t *node = malloc(sizeof(node_t));
     list_add(&node->list, &list->list);
     node->value = n;
     return list;
 }
 
-void list_free(struct list_head *head) {
+void list_free(struct list_head *head) 
+{
 
     if (!head)
         return;
@@ -52,25 +55,21 @@ void list_free(struct list_head *head) {
 }
 
 /* Verify if list is order */
-static bool list_is_ordered(node_t *list) {
-    bool first = true;
-    int value;
-    while (list) {
-        if (first) {
-        value = list->value;
-        first = false;
-        } else {
-        if (list->value < value)
+static bool list_is_ordered(struct list_head *head) 
+{
+    node_t *cur, *next;
+    list_for_each_entry_safe (cur, next, head, list) {
+        if (next == head) //last node
+            return true;
+        if (cur->value > next->value)
             return false;
-        value = list->value;
-        }
-        list = list->next;
     }
     return true;
 }
 
 /* shuffle array, only work if n < RAND_MAX */
-void shuffle(int *array, size_t n) {
+void shuffle(int *array, size_t n) 
+{
     if (n <= 0)
         return;
 
