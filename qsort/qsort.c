@@ -7,7 +7,7 @@
 
 typedef struct __node 
 {
-    struct list_head *head;
+    struct list_head list;
     struct __node *next;
     long value;
 } node_t;
@@ -33,19 +33,22 @@ int list_length(struct list_head *head) {
 
 node_t *list_construct(node_t *list, int n) {
     node_t *node = malloc(sizeof(node_t));
-    node->next = list;
+    list_add(&node->list, &list->list);
     node->value = n;
-    return node;
+    return list;
 }
 
-void list_free(node_t **list) {
-    node_t *node = (*list)->next;
-    while (*list) {
-        free(*list);
-        *list = node;
-        if (node)
-        node = node->next;
+void list_free(struct list_head *head) {
+
+    if (!head)
+        return;
+
+    node_t *cur, *next;
+    list_for_each_entry_safe (cur, next, head, list) {
+        list_del(&cur->list);
+        free(&cur->list);
     }
+    free(head);
 }
 
 /* Verify if list is order */
@@ -102,7 +105,7 @@ void quick_sort(node_t **list) {
         while (p) {
             node_t *n = p;
             p = p->next;
-            list_add(n->head , n->value > value ? right : left);
+            list_add(&n->list , n->value > value ? right : left);
         }
 
         begin[i] = left;
@@ -140,7 +143,7 @@ int main(int argc, char **argv) {
 
     quick_sort(&list);
     assert(list_is_ordered(list));
-    list_free(&list);
+    list_free(&list->list);
 
     free(test_arr);
 
