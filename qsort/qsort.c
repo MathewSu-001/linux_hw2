@@ -8,15 +8,9 @@
 typedef struct __node 
 {
     struct list_head list;
-    struct __node *next;
+    //struct __node *next;
     long value;
 } node_t;
-
-node_t *list_tail(node_t **left) {
-    while ((*left) && (*left)->next)
-        left = &((*left)->next);
-    return *left;
-}
 
 int list_length(struct list_head *head) 
 {
@@ -126,7 +120,7 @@ void quick_sort(struct list_head *head)
 int main(int argc, char **argv) {
     node_t *list = NULL;
 
-    size_t count = 100000;
+    size_t count = 10;
 
     int *test_arr = malloc(sizeof(int) * count);
 
@@ -134,12 +128,14 @@ int main(int argc, char **argv) {
         test_arr[i] = i;
     shuffle(test_arr, count);
 
+    struct list_head *head = malloc(sizeof(struct list_head));
     while (count--)
         list = list_construct(list, test_arr[count]);
 
-    quick_sort(&list);
-    assert(list_is_ordered(list));
-    list_free(&list->list);
+    list_splice(&list->list, head);
+    quick_sort(head);
+    assert(list_is_ordered(head));
+    list_free(head);
 
     free(test_arr);
 
