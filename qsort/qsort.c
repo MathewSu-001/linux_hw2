@@ -59,7 +59,7 @@ static bool list_is_ordered(struct list_head *head)
 {
     node_t *cur, *next;
     list_for_each_entry_safe (cur, next, head, list) {
-        if (next == head) //last node
+        if (&next->list == head) //last node
             return true;
         if (cur->value > next->value)
             return false;
@@ -81,49 +81,46 @@ void shuffle(int *array, size_t n)
     }
 }
 
-void quick_sort(node_t **list) {
-    int n = list_length(list);
+void quick_sort(struct list_head *head) 
+{
+    int n = list_length(head);
     int value;
     int i = 0;
     // int max_level = 2 * n;
     // node_t *begin[max_level], *end[max_level];
-    node_t *begin[n], *end[n];
+    struct list_head *begin[n];
     struct list_head *result = NULL, *left = NULL, *right = NULL;
 
-    begin[0] = *list;
-    end[0] = list_tail(list);
+    begin[0] = head->next;
 
     while (i >= 0) {
-        node_t *L = begin[i], *R = end[i];
-        if (L != R) {
-        node_t *pivot = L;
-        value = pivot->value;
-        node_t *p = pivot->next;
-        pivot->next = NULL;
+        struct list_head *L = begin[i];
+        if (L != head->prev) {
+            struct list_head *pivot = L;
+            value = list_entry(pivot, node_t, list)->value;
+            struct list_head *p = pivot->next;
+            list_del(pivot);
 
-        while (p) {
-            node_t *n = p;
-            p = p->next;
-            list_add(&n->list , n->value > value ? right : left);
-        }
+            while (p != head) {
+                struct list_head *n = p;
+                p = p->next;
+                list_add(n , list_entry(n, node_t, list)->value > value ? right : left);
+            }
 
-        begin[i] = left;
-        end[i] = list_tail(&left);
-        begin[i + 1] = pivot;
-        end[i + 1] = pivot;
-        begin[i + 2] = right;
-        end[i + 2] = list_tail(&right);
+            begin[i] = left;
+            begin[i + 1] = pivot;
+            begin[i + 2] = right;
 
-        left = right = NULL;
-        i += 2;
+            left = right = NULL;
+            i += 2;
 
         } else {
-        if (L)
-            list_add(L, result);
-        i--;
+            if (L)
+                list_move(L, result);
+            i--;
         }
     }
-    *list = result;
+    list_splice(result, head);
 }
 
 int main(int argc, char **argv) {
